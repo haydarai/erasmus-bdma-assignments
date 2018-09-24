@@ -1,0 +1,5 @@
+Java related files
+*.class
+
+VSCode related files
+*.code-workspace
