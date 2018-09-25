@@ -12,6 +12,7 @@ class DecisionTree {
      */
     static Node ID3(String[][] source, int index, int target, int level) {
         // If no rows of data left, means that there is no node in this branch
+        // in the algorithm pseudo code, it's: if (T is empty)
         if (source.length <= 1) {
             return new Node("Failure", level);
         }
@@ -33,6 +34,7 @@ class DecisionTree {
 
         // If all input records have same value (e.g: if humidty == normal always equal to play == true
         // then return Node of "humidity == normal" with a children "true" with its index)
+        // in the algorithm pseudo code, it's: if (all records in T have the same value for O)
         if (map.keySet().size() == 1) {
             String value = source[1][target] + ": [";
             for (int i = 1; i < source.length; i++) {
@@ -64,8 +66,9 @@ class DecisionTree {
         }
 
         // There is only 1 class left to be used as splitting criterion (why it's 3? because the other 2 are: index and
-        // target attribute). Hence this class also can't classify it precisely, return this attribute with the most
-        // occurrence
+        // target attribute). Hence only 1 class remains and this class also can't classify it precisely
+        // return this attribute with the most occurrence
+        // in the algorithm pseudo code, it's: if (I is empty)
         if (source[0].length == 3 && highestGain == 0) {
             String highestOccurenceKey = "";
             int highestNumberOfOccurence = 0;
@@ -102,6 +105,7 @@ class DecisionTree {
         }
 
         // Use the attribute with the highest gain as the current node
+        // in the algorithm pseudo code, it's the rest of the code
         Node node = new Node(highestGainName, level);
         for (String key : columnMap.keySet()) {
             Node keyNode = new Node(key, level + 1);
@@ -121,8 +125,17 @@ class DecisionTree {
         return node; // Return the root node
     }
 
+    /**
+     * Calculate the entropy split for an input attribute
+     * The mathematical formula is: summation of ((|Si|/|S|) * E(Si)) from i=1 to r
+     * @param map hashmap that is used for saving tons of stuff
+     * @param columnName input column name (e.g: humidity)
+     * @param columnValue input column value(e.g: high for humidity=high)
+     * @param targetMap hashmap to save occurrence of how many input column value occurred
+     * @return entropy value of the input column
+     */
     private static double entropySplit(Map<String, Integer> map, Map<String, Integer> columnMap,
-                                       Map<String, Integer> targetMap, String columnName) {
+                                    Map<String, Integer> targetMap, String columnName) {
         int divider = map.get("total");
         double entropySplit = 0;
         for (String key : columnMap.keySet()) {
@@ -137,14 +150,15 @@ class DecisionTree {
 
     /**
      * Calculate the entropy for an input attribute
-     * @param map
-     * @param columnName
-     * @param columnValue
-     * @param targetMap
-     * @return
+     * The mathematical formula is: - summation of (Pj log2(Pj)) from j = 1 to k
+     * @param map hashmap that is used for saving tons of stuff
+     * @param columnName input column name (e.g: humidity)
+     * @param columnValue input column value(e.g: high for humidity=high)
+     * @param targetMap hashmap to save occurrence of how many input column value occurred
+     * @return entropy value of the input column
      */
     private static double entropy(Map<String, Integer> map, String columnName, String columnValue,
-                                  Map<String, Integer> targetMap) {
+                                Map<String, Integer> targetMap) {
         String dividerName = columnName + "_" + columnValue;
         if (!map.containsKey(dividerName)) {
             return 0;
@@ -166,8 +180,9 @@ class DecisionTree {
 
     /**
      * Calculate the entropy of the target attribute
+     * The mathematical formula is: - summation of (Pj log2(Pj)) from j = 1 to k
      * @param map collection of target attribute and number of occurence (e.g: play, 100)
-     * @return
+     * @return the value of the entropy
      */
     private static double entropy(Map<String, Integer> map) {
         double sum = 0;
